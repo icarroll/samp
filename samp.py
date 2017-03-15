@@ -10,15 +10,16 @@ class SampHTTPRequestHandler(BaseHTTPRequestHandler):
             self.send_error(404)
 
         text = self.rfile.read(int(self.headers['Content-Length'])).decode()
-        stuff = json.loads(text)
-        print(stuff)
+        data = json.loads(text)
+        if type(data) != dict: self.send_error(400)
+        if data.keys() != {"title", "body"}: self.send_error(400)
 
-        '''
-        c = sqlite3.connect("blog.db").cursor()
-        query = "INSERT INTO posts (title,body) VALUES ?,?;"
-        c.execute(query, (title, body))
-        c.close()
-        '''
+        con = sqlite3.connect("blog.db")
+        c = con.cursor()
+        query = "INSERT INTO posts (title,body) VALUES (?,?);"
+        c.execute(query, (data["title"], data["body"]))
+        con.commit()
+        con.close()
 
         self.send_response(200)
         self.end_headers()
