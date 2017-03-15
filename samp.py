@@ -9,7 +9,19 @@ class SampHTTPRequestHandler(BaseHTTPRequestHandler):
         if self.path != "/post":
             self.send_error(404)
 
-        print("doing POST", self.requestline, self.command, self.path)
+        text = self.rfile.read(int(self.headers['Content-Length'])).decode()
+        stuff = json.loads(text)
+        print(stuff)
+
+        '''
+        c = sqlite3.connect("blog.db").cursor()
+        query = "INSERT INTO posts (title,body) VALUES ?,?;"
+        c.execute(query, (title, body))
+        c.close()
+        '''
+
+        self.send_response(200)
+        self.end_headers()
 
     def do_GET(self):
         if self.path != "/posts":
