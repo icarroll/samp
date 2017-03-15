@@ -11,8 +11,9 @@ class SampHTTPRequestHandler(BaseHTTPRequestHandler):
 
         text = self.rfile.read(int(self.headers['Content-Length'])).decode()
         data = json.loads(text)
-        if type(data) != dict: self.send_error(400)
-        if data.keys() != {"title", "body"}: self.send_error(400)
+        if type(data) != dict or data.keys() != {"title", "body"}:
+            self.send_error(400)
+            return
 
         con = sqlite3.connect("blog.db")
         c = con.cursor()
@@ -27,6 +28,7 @@ class SampHTTPRequestHandler(BaseHTTPRequestHandler):
     def do_GET(self):
         if self.path != "/posts":
             self.send_error(404)
+            return
 
         c = sqlite3.connect("blog.db").cursor()
         c.row_factory = sqlite3.Row
