@@ -8,6 +8,7 @@ class SampHTTPRequestHandler(BaseHTTPRequestHandler):
     def do_POST(self):
         if self.path != "/post":
             self.send_error(404)
+            return
 
         text = self.rfile.read(int(self.headers['Content-Length'])).decode()
         data = json.loads(text)
