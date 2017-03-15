@@ -2,6 +2,7 @@
 
 from http.server import HTTPServer, BaseHTTPRequestHandler
 import sqlite3
+import json
 
 class SampHTTPRequestHandler(BaseHTTPRequestHandler):
     def do_POST(self):
@@ -15,13 +16,14 @@ class SampHTTPRequestHandler(BaseHTTPRequestHandler):
             self.send_error(404)
 
         c = sqlite3.connect("blog.db").cursor()
-        c.execute("SELECT post_id,title,body FROM posts;")
-        posts = c.fetchall()
+        c.row_factory = sqlite3.Row
+        query = "SELECT post_id,title,body FROM posts;"
+        posts = [dict(zip(row.keys(), row)) for row in c.execute(query)]
         c.close()
 
         self.send_response(200)
         self.end_headers()
-        self.wfile.write(str(posts).encode())
+        self.wfile.write(json.dumps(posts).encode())
 
 def run():
     server_address = ("", 8000)
